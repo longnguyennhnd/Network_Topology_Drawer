@@ -1,0 +1,406 @@
+﻿
+@{
+    Layout = null;
+}
+
+<html>
+<head>
+    <title>Vis Network | Node Styles | Selected/Unselected Image</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <link href="~/Css/fontawesome.min.css" rel="stylesheet" />
+    <link href="~/Css/fontawesome.css" rel="stylesheet" />
+    <link href="~/Css/solid.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+    <script type="text/javascript"
+            src="~/Scripts/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <style type="text/css">
+        body {
+            font: 10pt arial;
+        }
+
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            border: 1px solid lightgray;
+        }
+
+        .topologyBalloon {
+            display: none;
+            background: #fff;
+            -webkit-box-shadow: 0px 1px 6px #777;
+            box-shadow: 0px 1px 6px #777;
+            position: absolute;
+            left: 100px;
+            top: 20px;
+            z-index: 600;
+            border-radius: 5px;
+            color: #333;
+            min-width: 200px;
+            line-height: 1.2;
+            font-size: 11px;
+        }
+    </style>
+</head>
+
+<body>
+    @*<table>
+            <tr>
+                <td>
+                    <h2>Node</h2>
+                    <table>
+                        <tr>
+                            <td></td>
+                            <td><label for="node-id">Id</label></td>
+                            <td><input id="node-id" type="text" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><label for="node-label">Label</label></td>
+                            <td><input id="node-label" type="text" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><label for="node-label">Image</label></td>
+                            <td><input id="node-image" type="text" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><label for="node-label">Parent</label></td>
+                            <td><input id="node-parent" type="text" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td><label for="node-label">Port</label></td>
+                            <td><input id="node-port" type="text" value="" /></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td>Action</td>
+                            <td>
+                                <button id="node-add" onclick="addNode();">Add</button>
+                                <button id="node-update" onclick="updateNode();">Update</button>
+                                <button id="node-remove" onclick="removeNode();">Remove</button>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+
+            </tr>
+        </table>*@
+    <div id="mynetwork"></div>
+    <div class="modal" id="mymodal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Sửa Node</h5>
+                    <a style='cursor: pointer;' class="hiddenModal"><span style='float: right; margin: 5px;'>&#10005;</span></a>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <div class="row form-group mb-2">
+                                <label class="control-label col-2 mt-2">
+                                    ID
+                                </label>
+                                <div class="col-lg-10">
+                                    <input id="node-id" type="text" value="" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row form-group mb-2">
+                                <label class="control-label col-2 mt-2">
+                                    Label
+                                </label>
+                                <div class="col-lg-10">
+                                    <input id="node-label" type="text" value="" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row form-group mb-2">
+                                <label class="control-label col-2 mt-2">
+                                    Image
+                                </label>
+                                <div class="col-lg-10">
+                                    <input id="node-image" type="text" value="" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row form-group mb-2">
+                                <label class="control-label col-2 mt-2">
+                                    Parent
+                                </label>
+                                <div class="col-lg-10">
+                                    <input id="node-parent" type="text" value="" class="form-control" />
+                                </div>
+                            </div>
+                            <div class="row form-group mb-2">
+                                <label class="control-label col-2 mt-2">
+                                    Port
+                                </label>
+                                <div class="col-lg-10">
+                                    <input id="node-port" type="text" value="" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="updateNode();">Save changes</button>
+                    <button type="button" class="btn btn-secondary hiddenModal" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="infor">
+
+    </div>
+
+    <script type="text/javascript">
+        var edges = new vis.DataSet([]);
+        var nodes = new vis.DataSet([]);
+
+        $(document).ready(function () {
+            var listNode = [];
+            var listEdge = [];
+
+            $.ajax({
+                url: "https://localhost:44344/api/Nodes",
+                type: 'GET',
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                success: function (data) {
+                    console.log(data);
+                    data.forEach(val => {
+                        var node = {
+                            id: val.ID,
+                            shape: "image",
+                            size: 20,
+                            label: val.nameNode,
+                            image: "../img/" + val.image,
+                            parent: val.parent,
+                            port: val.port,
+                            color: { background: "white" }
+                        };
+                        var edge = {
+                            id: val.ID,
+                            from: val.ID,
+                            to: val.parent
+                        };
+                        edges.add(edge);
+                        nodes.add(node);
+
+                    });
+
+                },
+            })
+            var container = document.getElementById("mynetwork");
+
+            // provide the data in the vis format
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+
+            var options = {
+                layout: {
+                    randomSeed: 5,
+                }
+
+            };
+            // initialize!
+            var network = new vis.Network(container, data, options);
+            network.on('click', function (properties) {
+                if (isEmpty(properties.nodes) == false) {
+                    var ids = properties.nodes;
+                    var clickedNodes = nodes.get(ids);
+                    console.log(clickedNodes);
+                    //document.getElementById("node-id").setAttribute('value', clickedNodes[0].id);
+                    //document.getElementById("node-label").setAttribute('value', clickedNodes[0].label);
+                    //document.getElementById("node-image").setAttribute('value', clickedNodes[0].image);
+                    //document.getElementById("node-parent").setAttribute('value', clickedNodes[0].parent);
+                    //document.getElementById("node-port").setAttribute('value', clickedNodes[0].port);
+                    if (ids != null) {
+                        const node = network.getPositions([ids])[ids]
+                        const corner = network.canvasToDOM({
+                            x: node.x,
+                            y: node.y
+                        })
+                        console.log(node, corner);
+                        var string = "<div class='card-body'>";
+                        nodes.forEach(val => {
+                            if (val.parent == ids) {
+                                string += "<div class='row form-group text-center'>" +
+                                    "<div style='width: 15%'>" + val.id + "</div>" +
+                                    "<div style='width: 20%'>" + val.label + "</div>" +
+                                    "<div style='width: 30%'>" + val.port + "</div>" +
+                                    "<div style='width: 35%; position: relative; bottom: 5px;'><button  onclick='removeNode(" + val.id + ")' style='font-size:12px'>Xoá interface</button    ></div>" +
+                                    "</div>";
+                            }
+                        });
+                        string += "</div>";
+                        $('#topo' + ids).remove();
+                        $(".vis-network").append("<div class='row form-group' id='topo" + ids + "' style='left: " + (corner.x + 15) + ";top: " + (corner.y + 15) + "; z-index: 10000; position: absolute; width: 400px; height: auto; -webkit-box-shadow: 0px 1px 6px #777;box-shadow: 0px 1px 6px #777;border-radius: 5px;color: #333;min-width: 200px;line-height: 1.2;font-size: 11px;' id=‘1’>" +
+                            "<div class='card' style='background-color: #fcfcf5!important;'>" +
+                            "<a style='cursor: pointer; ' onclick='Remove(" + ids + ")'><span style='float: right; margin: 5px;'>&#10005;</span></a>" +
+                            "<div class=card-body'>" +
+                            "<h6 class='card-title'>Tên Node:<span style='font-weight: bold;'>" + clickedNodes[0].label + "</span></h6>" +
+                            "<h6 class='card-subtitle mb-2 text-muted'>Port:  " + clickedNodes[0].port + "</h6> </div >" +
+                            string +
+                            "<div style='display: inline; ' class='mb-2'> <a href='#' class='btn btn-danger' style='font-size: 12px; margin-left: 10px;float: right' onclick='removeNode(" + ids + ")'>Xoá Node</a>" +
+                            "<a href='#' style='font-size: 12px; float: right' class='btn btn-success' onclick='Update(" + ids + ")'>Sửa Node</a></div>" +
+                            
+                            "</div>" +
+                            "</div>");
+                    }
+                }
+            });
+        });
+
+        function Update(id) {
+            console.log(id);
+            $('#topo' + id).remove();
+            $.ajax({
+                type: 'GET',
+                url: 'https://localhost:44344/api/Nodes/' + id,
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    document.getElementById("node-id").setAttribute('value', data.ID);
+                    document.getElementById("node-label").setAttribute('value', data.nameNode);
+                    document.getElementById("node-image").setAttribute('value', data.image);
+                    document.getElementById("node-parent").setAttribute('value', data.parent);
+                    document.getElementById("node-port").setAttribute('value', data.port);
+                    $('#mymodal').modal('show');
+                },
+                error: function (data) {
+                    console.log('Error', data);
+                }
+            });
+        }
+        $('.hiddenModal').on("click", function () {
+            $('#mymodal').modal('hide');
+        })
+        function Delete(id) {
+            console.log(id);
+        }
+        function Remove(id) {
+            console.log('a');
+            $('#topo' + id).remove();
+        };
+        function addNode() {
+            try {
+                let tmp = {
+                    ID: document.getElementById("node-id").value,
+                    nameNode: document.getElementById("node-label").value,
+                    image: document.getElementById("node-image").value,
+                    parent: document.getElementById("node-parent").value,
+                    port: document.getElementById("node-port").value
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'https://localhost:44344/api/Nodes',
+                    data: tmp,
+                    dataType: 'json',
+                    success: function (data) {
+                        nodes.add({
+                            id: document.getElementById("node-id").value,
+                            shape: "image",
+                            size: 20,
+                            label: document.getElementById("node-label").value,
+                            image: "../img/" + document.getElementById("node-image").value,
+                            parent: document.getElementById("node-parent").value,
+                            port: document.getElementById("node-port").value
+                        });
+                        edges.add({
+                            id: document.getElementById("node-id").value,
+                            from: document.getElementById("node-id").value,
+                            to: document.getElementById("node-parent").value
+                        });
+                    },
+                    error: function (data) {
+                        console.log('Error', data);
+                    }
+                });
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        function isEmpty(arg) {
+            for (var item in arg) {
+                return false;
+            }
+            return true;
+        }
+        function updateNode(id) {
+            try {
+                var clickedNodes = nodes.get(id);
+                console.log(clickedNodes);
+                document.getElementById("node-id").setAttribute('value', clickedNodes[0].id);
+                document.getElementById("node-label").setAttribute('value', clickedNodes[0].label);
+                document.getElementById("node-image").setAttribute('value', clickedNodes[0].image);
+                document.getElementById("node-parent").setAttribute('value', clickedNodes[0].parent);
+                document.getElementById("node-port").setAttribute('value', clickedNodes[0].port);
+                let tmp = {
+                    ID: document.getElementById("node-id").value,
+                    nameNode: document.getElementById("node-label").value,
+                    image: document.getElementById("node-image").value,
+                    parent: document.getElementById("node-parent").value,
+                    parent: document.getElementById("node-port").value
+                };
+
+                $.ajax({
+                    type: 'PUT',
+                    url: 'https://localhost:44344/api/Nodes/' + document.getElementById("node-id").value,
+                    data: tmp,
+                    dataType: 'json',
+                    success: function (data) {
+                        console.log(data);
+
+                        nodes.update({
+                            id: document.getElementById("node-id").value,
+                            shape: "image",
+                            size: 20,
+                            label: document.getElementById("node-label").value,
+                            image: "../img/" + document.getElementById("node-image").value,
+                            parent: document.getElementById("node-parent").value,
+                            port: document.getElementById("node-port").value,
+                        });
+                        edges.update({
+                            id: document.getElementById("node-id").value,
+                            from: document.getElementById("node-id").value,
+                            to: document.getElementById("node-parent").value
+                        });
+                        $('#mymodal').modal('hide');
+                    },
+                    error: function (data) {
+                        console.log('Error', data);
+                    }
+                });
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        function removeNode(id) {
+            try {
+
+                $.ajax({
+                    type: 'DELETE',
+                    url: 'https://localhost:44344/api/Nodes/' + id,
+                    dataType: 'json',
+                    success: function (data) {
+                        nodes.remove({ id: id });
+                        edges.remove({ id: id });
+                    },
+                    error: function (data) {
+                        console.log('Error', data);
+                    }
+                });
+            } catch (err) {
+                alert(err);
+            }
+        }
+    </script>
+</body>
+</html>
+

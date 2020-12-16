@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="topologyModelStoreContainer" CdmEntityContainer="topologyEntities2">
+    <EntitySetMapping Name="Nodes">
+      <EntityTypeMapping TypeName="topologyModel.Node">
+        <MappingFragment StoreEntitySet="Node">
+          <ScalarProperty Name="port" ColumnName="port" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="nameNode" ColumnName="nameNode" />
+          <ScalarProperty Name="parent" ColumnName="parent" />
+          <ScalarProperty Name="image" ColumnName="image" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping>
