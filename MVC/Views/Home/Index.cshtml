@@ -6,15 +6,28 @@
 <html>
 <head>
     <title>Vis Network | Node Styles | Selected/Unselected Image</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <link href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+    <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <link href="~/Css/fontawesome.min.css" rel="stylesheet" />
     <link href="~/Css/fontawesome.css" rel="stylesheet" />
     <link href="~/Css/solid.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/assets/vendors/material-design-iconic-font/css/material-design-iconic-font.min.css">
+    <link rel="stylesheet" href="~/assets/vendors/animate.css/animate.min.css">
+    <link rel="stylesheet" href="~/assets/vendors/jquery-scrollbar/jquery.scrollbar.css">
+    <link rel="stylesheet" href="~/assets/vendors/sweetalert2/sweetalert2.min.css">
+    <link rel="stylesheet" href="~/Css/app.min.css">
+    <link rel="stylesheet" href="~/Css/demo.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
     <script type="text/javascript"
             src="~/Scripts/vis-network.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
+    <script src="~/assets/vendors/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+    <script src="~/assets/vendors/jquery-scrollLock/jquery-scrollLock.min.js"></script>
+
+    <script src="~/assets/vendors/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="~/assets/vendors/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/Scripts/app.min.js"></script>
+    <script src="~/Scripts/demo.js"></script>
+
     <style type="text/css">
         body {
             font: 10pt arial;
@@ -45,56 +58,12 @@
 </head>
 
 <body>
-    @*<table>
-            <tr>
-                <td>
-                    <h2>Node</h2>
-                    <table>
-                        <tr>
-                            <td></td>
-                            <td><label for="node-id">Id</label></td>
-                            <td><input id="node-id" type="text" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><label for="node-label">Label</label></td>
-                            <td><input id="node-label" type="text" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><label for="node-label">Image</label></td>
-                            <td><input id="node-image" type="text" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><label for="node-label">Parent</label></td>
-                            <td><input id="node-parent" type="text" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><label for="node-label">Port</label></td>
-                            <td><input id="node-port" type="text" value="" /></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td>Action</td>
-                            <td>
-                                <button id="node-add" onclick="addNode();">Add</button>
-                                <button id="node-update" onclick="updateNode();">Update</button>
-                                <button id="node-remove" onclick="removeNode();">Remove</button>
-                            </td>
-                        </tr>
-                    </table>
-                </td>
-
-            </tr>
-        </table>*@
     <div id="mynetwork"></div>
     <div class="modal" id="mymodal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Sửa Node</h5>
+                    <h5 class="modal-title" id="titlethem">Sửa Node</h5>
                     <a style='cursor: pointer;' class="hiddenModal"><span style='float: right; margin: 5px;'>&#10005;</span></a>
                 </div>
                 <div class="modal-body">
@@ -121,7 +90,7 @@
                                     Image
                                 </label>
                                 <div class="col-lg-10">
-                                    <input id="node-image" type="text" value="" class="form-control" />
+                                    <input id="node-image" type="file" cancelLabel="Hủy" chooseLabel="Chọn ảnh" multiple="false" accept="image/*" maxFileSize="1000000" value="" class="form-control" />
                                 </div>
                             </div>
                             <div class="row form-group mb-2">
@@ -143,7 +112,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" onclick="updateNode();">Save changes</button>
                     <button type="button" class="btn btn-secondary hiddenModal" data-dismiss="modal">Close</button>
@@ -158,29 +127,29 @@
     <script type="text/javascript">
         var edges = new vis.DataSet([]);
         var nodes = new vis.DataSet([]);
-
+        var url = "https://localhost:44344/api/Nodes";
         $(document).ready(function () {
             var listNode = [];
             var listEdge = [];
-
             $.ajax({
-                url: "https://localhost:44344/api/Nodes",
+                url: url,
                 type: 'GET',
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
                 success: function (data) {
                     console.log(data);
                     data.forEach(val => {
-                        var node = {
-                            id: val.ID,
-                            shape: "image",
-                            size: 20,
-                            label: val.nameNode,
-                            image: "../img/" + val.image,
-                            parent: val.parent,
-                            port: val.port,
-                            color: { background: "white" }
-                        };
+                        if (val)
+                            var node = {
+                                id: val.ID,
+                                shape: "image",
+                                size: 20,
+                                label: val.nameNode,
+                                image: "../img/" + val.image,
+                                parent: val.parent,
+                                port: val.port,
+                                color: { background: "white" }
+                            };
                         var edge = {
                             id: val.ID,
                             from: val.ID,
@@ -188,24 +157,19 @@
                         };
                         edges.add(edge);
                         nodes.add(node);
-
                     });
-
                 },
             })
             var container = document.getElementById("mynetwork");
-
             // provide the data in the vis format
             var data = {
                 nodes: nodes,
                 edges: edges
             };
-
             var options = {
                 layout: {
                     randomSeed: 5,
                 }
-
             };
             // initialize!
             var network = new vis.Network(container, data, options);
@@ -214,12 +178,7 @@
                     var ids = properties.nodes;
                     var clickedNodes = nodes.get(ids);
                     console.log(clickedNodes);
-                    //document.getElementById("node-id").setAttribute('value', clickedNodes[0].id);
-                    //document.getElementById("node-label").setAttribute('value', clickedNodes[0].label);
-                    //document.getElementById("node-image").setAttribute('value', clickedNodes[0].image);
-                    //document.getElementById("node-parent").setAttribute('value', clickedNodes[0].parent);
-                    //document.getElementById("node-port").setAttribute('value', clickedNodes[0].port);
-                    if (ids != null) {
+                    if (ids !== null) {
                         const node = network.getPositions([ids])[ids]
                         const corner = network.canvasToDOM({
                             x: node.x,
@@ -233,7 +192,7 @@
                                     "<div style='width: 15%'>" + val.id + "</div>" +
                                     "<div style='width: 20%'>" + val.label + "</div>" +
                                     "<div style='width: 30%'>" + val.port + "</div>" +
-                                    "<div style='width: 35%; position: relative; bottom: 5px;'><button  onclick='removeNode(" + val.id + ")' style='font-size:12px'>Xoá interface</button    ></div>" +
+                                    "<div style='width: 35%; position: relative; bottom: 5px;'><button  value='" + val.id + "' class='removeNode' style='font-size:12px'>Xoá interface</button    ></div>" +
                                     "</div>";
                             }
                         });
@@ -246,22 +205,21 @@
                             "<h6 class='card-title'>Tên Node:<span style='font-weight: bold;'>" + clickedNodes[0].label + "</span></h6>" +
                             "<h6 class='card-subtitle mb-2 text-muted'>Port:  " + clickedNodes[0].port + "</h6> </div >" +
                             string +
-                            "<div style='display: inline; ' class='mb-2'> <a href='#' class='btn btn-danger' style='font-size: 12px; margin-left: 10px;float: right' onclick='removeNode(" + ids + ")'>Xoá Node</a>" +
-                            "<a href='#' style='font-size: 12px; float: right' class='btn btn-success' onclick='Update(" + ids + ")'>Sửa Node</a></div>" +
-                            
+                            "<div style='display: inline; ' class='mb-2'> <button class='btn btn-danger removeNode' style='font-size: 12px; margin-left: 10px;float: right' value='" + ids + "')'>Xoá Node</button>" +
+                            "<button style='font-size: 12px; float: right' class='btn btn-success updateNode' value='" + ids + "'>Sửa Node</button></div>" +
                             "</div>" +
                             "</div>");
                     }
                 }
             });
         });
-
-        function Update(id) {
-            console.log(id);
+        $(document).on('click', '.updateNode', function () {
+            var id = $(this).val();
+            $("#titlethem").html("Sửa node");
             $('#topo' + id).remove();
             $.ajax({
                 type: 'GET',
-                url: 'https://localhost:44344/api/Nodes/' + id,
+                url: url + "/" + id,
                 dataType: 'json',
                 success: function (data) {
                     console.log(data);
@@ -276,7 +234,7 @@
                     console.log('Error', data);
                 }
             });
-        }
+        });
         $('.hiddenModal').on("click", function () {
             $('#mymodal').modal('hide');
         })
@@ -284,7 +242,6 @@
             console.log(id);
         }
         function Remove(id) {
-            console.log('a');
             $('#topo' + id).remove();
         };
         function addNode() {
@@ -296,10 +253,9 @@
                     parent: document.getElementById("node-parent").value,
                     port: document.getElementById("node-port").value
                 };
-
                 $.ajax({
                     type: 'POST',
-                    url: 'https://localhost:44344/api/Nodes',
+                    url: url,
                     data: tmp,
                     dataType: 'json',
                     success: function (data) {
@@ -332,37 +288,30 @@
             }
             return true;
         }
-        function updateNode(id) {
+        function updateNode() {
             try {
-                var clickedNodes = nodes.get(id);
-                console.log(clickedNodes);
-                document.getElementById("node-id").setAttribute('value', clickedNodes[0].id);
-                document.getElementById("node-label").setAttribute('value', clickedNodes[0].label);
-                document.getElementById("node-image").setAttribute('value', clickedNodes[0].image);
-                document.getElementById("node-parent").setAttribute('value', clickedNodes[0].parent);
-                document.getElementById("node-port").setAttribute('value', clickedNodes[0].port);
+                var file = document.getElementById('node-image').files[0];
                 let tmp = {
                     ID: document.getElementById("node-id").value,
                     nameNode: document.getElementById("node-label").value,
-                    image: document.getElementById("node-image").value,
+                    image: file.name,
                     parent: document.getElementById("node-parent").value,
-                    parent: document.getElementById("node-port").value
+                    port: document.getElementById("node-port").value
                 };
-
+                console.log(file.name);
                 $.ajax({
                     type: 'PUT',
-                    url: 'https://localhost:44344/api/Nodes/' + document.getElementById("node-id").value,
+                    url: url + "/" + document.getElementById("node-id").value,
                     data: tmp,
                     dataType: 'json',
                     success: function (data) {
                         console.log(data);
-
                         nodes.update({
                             id: document.getElementById("node-id").value,
                             shape: "image",
                             size: 20,
                             label: document.getElementById("node-label").value,
-                            image: "../img/" + document.getElementById("node-image").value,
+                            image: "../img/" + file.name,
                             parent: document.getElementById("node-parent").value,
                             port: document.getElementById("node-port").value,
                         });
@@ -370,6 +319,23 @@
                             id: document.getElementById("node-id").value,
                             from: document.getElementById("node-id").value,
                             to: document.getElementById("node-parent").value
+                        });
+                        $.notify({
+                            title: ' Thông báo',
+                            message: 'Sửa thành công',
+                            url: ''
+                        }, {
+                            delay: 3000,
+                            template: '<div data-notify="container" style="background-color: #32c787;" class="alert alert-dismissible alert-{0} alert--notify" role="alert">' +
+                                '<span data-notify="icon"></span> ' +
+                                '<span data-notify="title">{1}</span> ' +
+                                '<span data-notify="message">{2}</span>' +
+                                '<div class="progress" data-notify="progressbar">' +
+                                '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+                                '</div>' +
+                                '<a href="{3}" target="{4}" data-notify="url"></a>' +
+                                '<button type="button" aria-hidden="true" data-notify="dismiss" class="alert--notify__close">Close</button>' +
+                                '</div>'
                         });
                         $('#mymodal').modal('hide');
                     },
@@ -381,25 +347,47 @@
                 console.log(err);
             }
         }
-        function removeNode(id) {
-            try {
-
-                $.ajax({
-                    type: 'DELETE',
-                    url: 'https://localhost:44344/api/Nodes/' + id,
-                    dataType: 'json',
-                    success: function (data) {
-                        nodes.remove({ id: id });
-                        edges.remove({ id: id });
-                    },
-                    error: function (data) {
-                        console.log('Error', data);
-                    }
-                });
-            } catch (err) {
-                alert(err);
+        $(document).on('click', '.removeNode', function () {
+            var r = confirm("Bạn có muốn xóa không?");
+            if (r == true) {
+                var id = $(this).val();
+                try {
+                    $.ajax({
+                        type: 'DELETE',
+                        url: url + "/" + id,
+                        dataType: 'json',
+                        success: function (data) {
+                            nodes.remove({ id: id });
+                            edges.remove({ id: id });
+                            Remove(id);
+                            $.notify({
+                                title: ' Thông báo',
+                                message: 'Xoá thành công',
+                                url: ''
+                            }, {
+                                delay: 3000,
+                                template: '<div data-notify="container" style="background-color: #32c787;" class="alert alert-dismissible alert-{0} alert--notify" role="alert">' +
+                                    '<span data-notify="icon"></span> ' +
+                                    '<span data-notify="title">{1}</span> ' +
+                                    '<span data-notify="message">{2}</span>' +
+                                    '<div class="progress" data-notify="progressbar">' +
+                                    '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
+                                    '</div>' +
+                                    '<a href="{3}" target="{4}" data-notify="url"></a>' +
+                                    '<button type="button" aria-hidden="true" data-notify="dismiss" class="alert--notify__close">Close</button>' +
+                                    '</div>'
+                            });
+                        },
+                        error: function (data) {
+                            console.log('Error', data);
+                        }
+                    });
+                } catch (err) {
+                    alert(err);
+                }
             }
-        }
+
+        });
     </script>
 </body>
 </html>
